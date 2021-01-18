@@ -7,6 +7,28 @@ const int WIDTH = 50;
 
 const int CELLSIZE = 15;
 
+int getAliveNeightboor(bool grid[WIDTH][HEIGHT], int x, int y)
+{
+    int aliveCount = 0;
+    for (int i = -1; i <= 1; i++)
+    {
+        for (int j = -1; j <= 1; j++)
+        {
+            if (i == 0 && j == 0) continue;
+
+            if (x + i < 0 || y + j < 0) continue;
+
+            if (x + i > WIDTH - 1 || y + j > HEIGHT - 1) continue;
+
+            int neightboor = grid[x + i][y + j];
+
+            aliveCount += neightboor;
+        }
+    }
+
+    return aliveCount;
+}
+
 int main(int argc, char *argv[])
 {
     SDL_Window *pWindow = NULL;
@@ -14,6 +36,7 @@ int main(int argc, char *argv[])
     int status = EXIT_FAILURE;
 
     bool cells[WIDTH][HEIGHT];
+    bool tempCells[WIDTH][HEIGHT];
 
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
     {
@@ -94,15 +117,29 @@ int main(int argc, char *argv[])
         
         if(isPlaying)
         {
-            SDL_Log("coucou");
+            for (int x = 0; x < WIDTH; x++)
+            {
+                for (int y = 0; y < HEIGHT; y++)
+                {
+                    tempCells[x][y] = cells[x][y];
+                }
+            }
+            
+            for (int x = 0; x < WIDTH; x++)
+            {
+                for (int y = 0; y < HEIGHT; y++)
+                {
+                  int aliveCount = getAliveNeightboor(tempCells, x, y);
+
+                  if (aliveCount < 2 || aliveCount > 3 ) cells[x][y] = false;
+                  else if (aliveCount == 3) cells[x][y] = true;  
+                }   
+            }
         }
 
         SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, 0);
         SDL_RenderClear(pRenderer);
 
-        
-
-        
         for (int x = 0; x < WIDTH; x++)
         {
             for (int y = 0; y < HEIGHT; y++)

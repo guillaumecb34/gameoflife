@@ -153,6 +153,17 @@ int main(int argc, char *argv[])
     bool l = false;
     bool e = false;
     
+    bool w = false;
+    bool t = false;
+    bool f2 = false;
+
+    int rAliveColor = 0;
+    int gAliveColor = 0;
+    int bAliveColor = 0;
+    int rDeadColor = 255;
+    int gDeadColor = 255;
+    int bDeadColor = 255;
+
     while (isOpen)
     {
         if(SDL_PollEvent(&events))
@@ -189,7 +200,11 @@ int main(int argc, char *argv[])
                             isGenerateGrid = !isGenerateGrid;
                             if(isPlaying) isPlaying = !isPlaying;
                         }
-                       
+                        else if (!r && !a && !f && !a2 && !l && !e)
+                        {
+                            isOpen = false;
+                        }
+                        
                         r = false;
                         a = false;
                         f = false;
@@ -229,13 +244,31 @@ int main(int argc, char *argv[])
                     }
                     else if (events.key.keysym.sym == SDLK_c && !isStartPage && !isPlaying)
                     {
+                    
                         for (int x = 0; x < WIDTH; x++)
+                        {
+                            for (int y = 0; y < HEIGHT; y++)
                             {
-                                for (int y = 0; y < HEIGHT; y++)
-                                {
-                                    cells[x][y] = false;
-                                }
+                                cells[x][y] = false;
                             }
+                        }
+                    }
+                    else if (events.key.keysym.sym == SDLK_m && !isStartPage)
+                    {
+                        rAliveColor = rand() % 256;
+                        gAliveColor = rand() % 256;
+                        bAliveColor = rand() % 256;
+                        rDeadColor = rand() % 256;
+                        gDeadColor = rand() % 256;
+                        bDeadColor = rand() % 256;
+
+                        if (w || t || f2)
+                        {
+                            w = false;
+                            t = false;
+                            f2 = false;
+                        }
+
                     }
                     else if (events.key.keysym.sym == SDLK_a && isStartPage)
                     {
@@ -243,9 +276,17 @@ int main(int argc, char *argv[])
                         else if (a && !a2) a2 = true;
                         else break;
                     }
-                    else if (events.key.keysym.sym == SDLK_f && isStartPage && !f)
+                    else if (events.key.keysym.sym == SDLK_f )
                     {
-                        f = true;
+                        if(isStartPage && !f) 
+                        {
+                            f = true;
+                        }
+                        else if (!isStartPage && !f2)
+                        {
+                            f2 = true;
+                        }
+                        
                     }
                     else if (events.key.keysym.sym == SDLK_l && isStartPage && !l)
                     {
@@ -254,6 +295,14 @@ int main(int argc, char *argv[])
                     else if (events.key.keysym.sym == SDLK_e && isStartPage && !e)
                     {
                         e = true;
+                    }
+                    else if (events.key.keysym.sym == SDLK_w && !isStartPage && !w)
+                    {
+                        w = true;
+                    }
+                    else if (events.key.keysym.sym == SDLK_t && !isStartPage && !t)
+                    {
+                        t = true;
                     }
                 default:
                     break;
@@ -266,7 +315,7 @@ int main(int argc, char *argv[])
             if(r && a && f && a2 && l && e)
             {
                 
-                SDL_SetRenderDrawColor(pRenderer, 0, 3, 3, 0);
+                SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, 0);
                 SDL_RenderClear(pRenderer);
 
                 background = SDL_LoadBMP("easterEgg.bmp");
@@ -314,18 +363,31 @@ int main(int argc, char *argv[])
         if(isGenerateGrid && isStartPage != true){
             SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, 0);
             SDL_RenderClear(pRenderer);
-
+           if (w && t && f2 && isPlaying) 
+            {
+                rAliveColor = rand() % 256;
+                gAliveColor = rand() % 256;
+                bAliveColor = rand() % 256;
+                rDeadColor = rand() % 256;
+                gDeadColor = rand() % 256;
+                bDeadColor = rand() % 256;
+            }
             for (int x = 0; x < WIDTH; x++)
             {
                 for (int y = 0; y < HEIGHT; y++)
                 {
+                    
+                    int rColor = cells[x][y] ? rAliveColor : rDeadColor;
+                    int gColor = cells[x][y] ? gAliveColor : gDeadColor;
+                    int bColor = cells[x][y] ? bAliveColor : bDeadColor;
 
-                    int color = cells[x][y] ? 0 : 255;
+                    
 
                     rect.x = x * rect.w;
                     rect.y = y * rect.h;
 
-                    SDL_SetRenderDrawColor(pRenderer, color, color, color, 0);
+                    SDL_SetRenderDrawColor(pRenderer, rColor, gColor, bColor, 0);
+
                     SDL_RenderFillRect(pRenderer, &rect);
 
                 }

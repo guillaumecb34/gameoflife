@@ -138,9 +138,20 @@ int main(int argc, char *argv[])
     SDL_Surface *surface;
     SDL_Texture *texture;
 
+    SDL_Surface *background;
+    SDL_Texture *easterEgg;
+
+
     Mix_Music *music;
     music = Mix_LoadMUS("tetris.wav");
     Mix_PlayMusic(music, -1);
+
+    bool r = false;
+    bool a = false;
+    bool f = false;
+    bool a2 = false;
+    bool l = false;
+    bool e = false;
     
     while (isOpen)
     {
@@ -170,11 +181,79 @@ int main(int argc, char *argv[])
                         isStartPage = !isStartPage;
                         isGenerateGrid = !isGenerateGrid;
                     }
-                    else if (events.key.keysym.sym == SDLK_ESCAPE && isStartPage != true)
+                    else if (events.key.keysym.sym == SDLK_ESCAPE)
                     {
-                        isStartPage = !isStartPage;
-                        isGenerateGrid = !isGenerateGrid;
-                        if(isPlaying) isPlaying = !isPlaying;
+                        if (isStartPage != true)
+                        {
+                            isStartPage = !isStartPage;
+                            isGenerateGrid = !isGenerateGrid;
+                            if(isPlaying) isPlaying = !isPlaying;
+                        }
+                       
+                        r = false;
+                        a = false;
+                        f = false;
+                        a2 = false;
+                        l = false;
+                        e = false;
+                    }
+                    else if (events.key.keysym.sym == SDLK_p)
+                    {
+                        if(Mix_PausedMusic() == 1)
+                        {
+                            Mix_ResumeMusic();
+                        }
+                        else
+                        {
+                            Mix_PauseMusic();
+                        }
+                    }
+                    else if (events.key.keysym.sym == SDLK_r)
+                    {
+                        if(isPlaying) break;
+                        else if (isStartPage)
+                        {
+                            if(r) break;
+                            r = true;
+                        } 
+                        else
+                        {
+                            for (int x = 0; x < WIDTH; x++)
+                            {
+                                for (int y = 0; y < HEIGHT; y++)
+                                {
+                                    cells[x][y] = rand() & 1;
+                                }
+                            }
+                        }
+                    }
+                    else if (events.key.keysym.sym == SDLK_c && !isStartPage && !isPlaying)
+                    {
+                        for (int x = 0; x < WIDTH; x++)
+                            {
+                                for (int y = 0; y < HEIGHT; y++)
+                                {
+                                    cells[x][y] = false;
+                                }
+                            }
+                    }
+                    else if (events.key.keysym.sym == SDLK_a && isStartPage)
+                    {
+                        if(!a) a = true;
+                        else if (a && !a2) a2 = true;
+                        else break;
+                    }
+                    else if (events.key.keysym.sym == SDLK_f && isStartPage && !f)
+                    {
+                        f = true;
+                    }
+                    else if (events.key.keysym.sym == SDLK_l && isStartPage && !l)
+                    {
+                        l = true;
+                    }
+                    else if (events.key.keysym.sym == SDLK_e && isStartPage && !e)
+                    {
+                        e = true;
                     }
                 default:
                     break;
@@ -184,10 +263,27 @@ int main(int argc, char *argv[])
 
         if(isStartPage)
         {
-            SDL_SetRenderDrawColor(pRenderer, 131, 3, 3, 0);
-            SDL_RenderClear(pRenderer);
-            renderText(pRenderer, surface, texture, dstrect, font, textColor, "GAME OF LIFE", ((CELLSIZE * WIDTH) / 2), ((CELLSIZE * HEIGHT - 150) / 2));
-            renderText(pRenderer, surface, texture, dstrect, font, textColor, "Press Enter to Start", ((CELLSIZE * WIDTH) / 2), ((CELLSIZE * HEIGHT) / 2 + 100));
+            if(r && a && f && a2 && l && e)
+            {
+                
+                SDL_SetRenderDrawColor(pRenderer, 0, 3, 3, 0);
+                SDL_RenderClear(pRenderer);
+
+                background = SDL_LoadBMP("easterEgg.bmp");
+
+                easterEgg = SDL_CreateTextureFromSurface(pRenderer, background);
+
+                SDL_RenderCopy(pRenderer, easterEgg, NULL, NULL);
+
+
+            } 
+            else
+            {
+                SDL_SetRenderDrawColor(pRenderer, 131, 3, 3, 0);
+                SDL_RenderClear(pRenderer);
+                renderText(pRenderer, surface, texture, dstrect, font, textColor, "GAME OF LIFE", ((CELLSIZE * WIDTH) / 2), ((CELLSIZE * HEIGHT - 150) / 2));
+                renderText(pRenderer, surface, texture, dstrect, font, textColor, "Press Enter to Start", ((CELLSIZE * WIDTH) / 2), ((CELLSIZE * HEIGHT) / 2 + 100));
+            }
             
         }
         
